@@ -1,0 +1,27 @@
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+
+export const crudApi = createApi({
+    reducerPath: '',
+    baseQuery: fetchBaseQuery({baseUrl: "http://127.0.0.1:8000/"}),
+    endpoints:(builder) => ({
+        getTodoList: builder.query({
+            query: () => '/',
+        }),
+        createTodo: builder.mutation({
+            query: (todo) => ({
+                url: '/createtodo/',
+                method: "POST",
+                body: todo,
+            }),
+        }),
+        deleteTodo: builder.mutation({
+            query: (id) => ({
+                url: `deletetodo/${id}`,
+                method: "DELETE",
+            }),
+        }),
+    }),
+
+})
+
+export const { useGetTodoListQuery, useCreateTodoMutation, useDeleteTodoMutation } = crudApi;
