@@ -1,20 +1,72 @@
-import PrimaryBtn from "./buttons/PrimaryBtn";
-import SecondaryBtn from "./buttons/SecondaryBtn";
 import {
   useCreateTodoMutation,
   useGetTodoListQuery,
   useUpdateTodoMutation,
 } from "../services/crudApi";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import TodoInput from "./inputField/TodoInput";
+import TertiaryBtn from "./buttons/TertiaryBtn";
+import {
+  setTodoInputFocus,
+  setTodoTitleInputActive,
+  setTodoDescInputActive,
+} from "../slices/todoInputSlice";
+import { useRef } from "react";
+import { setTodoData } from "../slices/todoSlice";
+import PrimaryBtn from "./buttons/PrimaryBtn";
 
 const AddTodo = (props) => {
-  const { inputTitle, setInputTitle, inputDesc, setInputDesc, isUpdating, setIsUpdating } =
-    props;
+  const {
+    inputTitle,
+    setInputTitle,
+    inputDesc,
+    setInputDesc,
+    isUpdating,
+    setIsUpdating,
+  } = props;
 
   const [createTodo] = useCreateTodoMutation();
   const { refetch } = useGetTodoListQuery();
   const [updateTodo] = useUpdateTodoMutation();
+  const dispatch = useDispatch();
   const id = useSelector((state) => state.todo.todoId);
+  const isTodoInputFocus = useSelector(
+    (state) => state.todoInput.todoInputFocus
+  );
+  const setTodoTitleInput = useSelector(
+    (state) => state.todoInput.todoTitleInput
+  );
+  const setTodoDescInput = useSelector(
+    (state) => state.todoInput.todoDescInput
+  );
+  const inputDescRef = useRef();
+  const inputTitleRef = useRef();
+
+  const todoSetDescriptionHandler = () => {
+    const content = inputDescRef.current.textContent;
+    if (content !== "") {
+      dispatch(setTodoDescInputActive(true));
+    } else {
+      dispatch(setTodoDescInputActive(false));
+    }
+  };
+
+  const todoSetTitleHandler = () => {
+    const content = inputTitleRef.current.textContent;
+    if (content !== "") {
+      dispatch(setTodoTitleInputActive(true));
+    } else {
+      dispatch(setTodoTitleInputActive(false));
+    }
+  };
+
+  const closeInputHandler = () => {
+    dispatch(setTodoInputFocus(false));
+    dispatch(setTodoTitleInputActive(false));
+    dispatch(setTodoDescInputActive(false));
+    inputDescRef.current.textContent = "";
+    inputTitleRef.current.textContent = "";
+  };
 
   const updateTodoHandler = async () => {
     try {
@@ -32,12 +84,16 @@ const AddTodo = (props) => {
     }
   };
 
-  const handleSubmit = async () => {
-    if (inputDesc === "" || inputTitle === "") return;
-    let todoObj = {
-      title: inputTitle,
-      description: inputDesc,
-    };
+  const todoSaveHandler = async () => {
+    let title = inputTitleRef.current.textContent;
+    let description = inputDescRef.current.textContent;
+    const todoObj = {
+      title: title,
+      description: description,
+    }
+    dispatch(setTodoData(todoObj))
+    console.log("This is todo ", todoObj);
+    if (title === "" || description === "") return;
 
     if (isUpdating) {
       updateTodoHandler();
@@ -49,42 +105,36 @@ const AddTodo = (props) => {
         console.log(`Error Occurred while creating the todo: ${error}`);
       }
     }
-
-    setInputDesc("");
-    setInputTitle("");
+    inputTitleRef.current.textContent = "";
+    inputDescRef.current.textContent = "";
+    dispatch(setTodoTitleInputActive(false))
+    dispatch(setTodoDescInputActive(false))
   };
 
   return (
-    <div className=" w-full h-96 flex justify-center p-10  border-b border-sky-900 flex-col gap-5">
-      <h2 className="text-3xl font-bold text-white uppercase">Todo App</h2>
-      <form
-        onSubmit={(e) => e.preventDefault()}
-        className="flex flex-col w-full items-start h-full gap-4"
-      >
-        <input
-          className="w-full rounded-md px-3 py-2 outline-none border-none"
-          value={inputTitle}
-          type="text"
-          name="title"
-          id="title"
-          placeholder="Title"
-          onChange={(e) => setInputTitle(e.target.value)}
-        />
-        <textarea
-          value={inputDesc}
-          onChange={(e) => setInputDesc(e.target.value)}
-          placeholder="Description"
-          id="textarea"
-          className="w-full rounded-md resize-none outline-none p-3 h-full"
-        ></textarea>
-        <div className="flex gap-5">
-          <PrimaryBtn
-            text={`${isUpdating ? "Update" : "Add"}`}
-            action={handleSubmit}
+    <div className=" w-full flex p-10 flex-col">
+      <div className="w-1/2 mx-auto bg-slate-200 rounded-md overflow-hidden p-3 flex flex-col">
+        {isTodoInputFocus && (
+          <TodoInput
+            placeholder={!setTodoTitleInput ? "Title" : ""}
+            action={todoSetTitleHandler}
+            inputReference={inputTitleRef}
           />
-          <SecondaryBtn setinputDesc={setInputDesc} />
+        )}
+        <TodoInput
+          placeholder={!setTodoDescInput ? "Take a note..." : ""}
+          action={todoSetDescriptionHandler}
+          inputReference={inputDescRef}
+        />
+        <div className="w-full flex justify-end gap-2">
+          {isTodoInputFocus && (
+            <>
+              <PrimaryBtn text="Save" action={todoSaveHandler} />
+              <TertiaryBtn text="Close" action={closeInputHandler} />
+            </>
+          )}
         </div>
-      </form>
+      </div>
     </div>
   );
 };

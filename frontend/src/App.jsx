@@ -1,6 +1,7 @@
 import AddTodo from "./components/AddTodo";
 import TodoList from "./components/TodoList";
 import { useState } from "react";
+import Navbar from "./components/navbar/Navbar";
 
 function App() {
   const [inputDesc, setInputDesc] = useState("");
@@ -10,7 +11,8 @@ function App() {
 
   return (
     <>
-      <div className="w-full min-h-screen bg-sky-950">
+      <div className="w-full min-h-screen bg-slate-950">
+        <Navbar/>
         <AddTodo
           inputDesc={inputDesc}
           setInputDesc={setInputDesc}
@@ -21,7 +23,7 @@ function App() {
           todoId={todoId}
           setTodoId={setTodoId}
         />
-        <TodoList
+        {/* <TodoList
           inputDesc={inputDesc}
           setInputDesc={setInputDesc}
           inputTitle={inputTitle}
@@ -30,7 +32,7 @@ function App() {
           setIsUpdating={setIsUpdating}
           todoId={todoId}
           setTodoId={setTodoId}
-        />
+        /> */}
       </div>
     </>
   );

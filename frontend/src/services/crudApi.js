@@ -22,7 +22,7 @@ export const crudApi = createApi({
         }),
         updateTodo: builder.mutation({
             query: (inputData) => {
-                const {id, ...data} = inputData; 
+                const { id, ...data } = inputData;
                 return {
                     url: `updatetodo/${id}/`,
                     method: "PUT",

@@ -1,11 +1,11 @@
 import React from "react";
 
 const PrimaryBtn = (props) => {
-    const {action, text, isUpdating} = props;
+  const { action, text } = props;
   return (
     <button
       onClick={action}
-      className="py-2 px-10 border border-sky-400 bg-sky-600 text-white rounded-md font-medium uppercase hover:bg-sky-400 transition-all duration-200"
+      className="py-2 w-fit text-center px-6 border border-slate-600 bg-slate-800 text-white rounded-md font-normal  hover:bg-slate-600 transition-all duration-200"
     >
       {text}
     </button>
