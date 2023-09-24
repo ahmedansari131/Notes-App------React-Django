@@ -2,8 +2,8 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 export const crudApi = createApi({
     reducerPath: '',
-    baseQuery: fetchBaseQuery({baseUrl: "http://127.0.0.1:8000/"}),
-    endpoints:(builder) => ({
+    baseQuery: fetchBaseQuery({ baseUrl: "http://127.0.0.1:8000/" }),
+    endpoints: (builder) => ({
         getTodoList: builder.query({
             query: () => '/',
         }),
@@ -20,8 +20,18 @@ export const crudApi = createApi({
                 method: "DELETE",
             }),
         }),
+        updateTodo: builder.mutation({
+            query: (inputData) => {
+                const {id, ...data} = inputData; 
+                return {
+                    url: `updatetodo/${id}/`,
+                    method: "PUT",
+                    body: data,
+                }
+            },
+        }),
     }),
 
 })
 
-export const { useGetTodoListQuery, useCreateTodoMutation, useDeleteTodoMutation } = crudApi;
+export const { useGetTodoListQuery, useCreateTodoMutation, useDeleteTodoMutation, useUpdateTodoMutation } = crudApi;

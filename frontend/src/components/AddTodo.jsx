@@ -1,37 +1,55 @@
-import React, { useState } from "react";
-import { addTodo, updateTodo } from "../slices/todoSlice";
-import { useDispatch } from "react-redux";
 import PrimaryBtn from "./buttons/PrimaryBtn";
 import SecondaryBtn from "./buttons/SecondaryBtn";
 import {
   useCreateTodoMutation,
   useGetTodoListQuery,
+  useUpdateTodoMutation,
 } from "../services/crudApi";
+import { useSelector } from "react-redux";
 
 const AddTodo = (props) => {
-  const {
-    inputTitle,
-    setInputTitle,
-    inputDesc,
-    setInputDesc,
-  } = props;
+  const { inputTitle, setInputTitle, inputDesc, setInputDesc, isUpdating, setIsUpdating } =
+    props;
 
   const [createTodo] = useCreateTodoMutation();
   const { refetch } = useGetTodoListQuery();
+  const [updateTodo] = useUpdateTodoMutation();
+  const id = useSelector((state) => state.todo.todoId);
+
+  const updateTodoHandler = async () => {
+    try {
+      console.log(id);
+      const todoObj = {
+        id: id,
+        title: inputTitle,
+        description: inputDesc,
+      };
+      await updateTodo(todoObj);
+      refetch();
+      setIsUpdating(false);
+    } catch (error) {
+      console.log(`Error Occurred while updating the todo: ${error}`);
+    }
+  };
 
   const handleSubmit = async () => {
-    if (inputDesc === ""  || inputTitle === "") return;
+    if (inputDesc === "" || inputTitle === "") return;
     let todoObj = {
       title: inputTitle,
       description: inputDesc,
     };
 
-    try {
-      const newTodo = await createTodo(todoObj);
-      refetch();
-    } catch (error) {
-      console.log(`Error Occurred: ${error}`);
+    if (isUpdating) {
+      updateTodoHandler();
+    } else {
+      try {
+        await createTodo(todoObj);
+        refetch();
+      } catch (error) {
+        console.log(`Error Occurred while creating the todo: ${error}`);
+      }
     }
+
     setInputDesc("");
     setInputTitle("");
   };
@@ -61,7 +79,7 @@ const AddTodo = (props) => {
         ></textarea>
         <div className="flex gap-5">
           <PrimaryBtn
-            text="Add"
+            text={`${isUpdating ? "Update" : "Add"}`}
             action={handleSubmit}
           />
           <SecondaryBtn setinputDesc={setInputDesc} />
