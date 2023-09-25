@@ -23,7 +23,7 @@ function App() {
           todoId={todoId}
           setTodoId={setTodoId}
         />
-        {/* <TodoList
+        <TodoList
           inputDesc={inputDesc}
           setInputDesc={setInputDesc}
           inputTitle={inputTitle}
@@ -32,7 +32,7 @@ function App() {
           setIsUpdating={setIsUpdating}
           todoId={todoId}
           setTodoId={setTodoId}
-        /> */}
+        />
       </div>
     </>
   );
