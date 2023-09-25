@@ -16,14 +16,7 @@ import { setTodoData } from "../slices/todoSlice";
 import PrimaryBtn from "./buttons/PrimaryBtn";
 
 const AddTodo = (props) => {
-  const {
-    inputTitle,
-    setInputTitle,
-    inputDesc,
-    setInputDesc,
-    isUpdating,
-    setIsUpdating,
-  } = props;
+  const{isUpdating} = props;
 
   const [createTodo] = useCreateTodoMutation();
   const { refetch } = useGetTodoListQuery();
@@ -68,21 +61,21 @@ const AddTodo = (props) => {
     inputTitleRef.current.textContent = "";
   };
 
-  const updateTodoHandler = async () => {
-    try {
-      console.log(id);
-      const todoObj = {
-        id: id,
-        title: inputTitle,
-        description: inputDesc,
-      };
-      await updateTodo(todoObj);
-      refetch();
-      setIsUpdating(false);
-    } catch (error) {
-      console.log(`Error Occurred while updating the todo: ${error}`);
-    }
-  };
+  // const updateTodoHandler = async () => {
+  //   try {
+  //     console.log(id);
+  //     const todoObj = {
+  //       id: id,
+  //       title: inputTitle,
+  //       description: inputDesc,
+  //     };
+  //     await updateTodo(todoObj);
+  //     refetch();
+  //     setIsUpdating(false);
+  //   } catch (error) {
+  //     console.log(`Error Occurred while updating the todo: ${error}`);
+  //   }
+  // };
 
   const todoSaveHandler = async () => {
     let title = inputTitleRef.current.textContent;

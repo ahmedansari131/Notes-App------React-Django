@@ -6,6 +6,7 @@ import {
 } from "../services/crudApi";
 import { useDispatch } from "react-redux";
 import { setTodoId } from "../slices/todoSlice";
+import TodoCards from "./cards/TodoCards"
 
 const TodoList = (props) => {
   const { setInputTitle, setInputDesc, setIsUpdating } = props;
@@ -32,49 +33,12 @@ const TodoList = (props) => {
       setIsUpdating(true);
       dispatch(setTodoId(id));
     } catch (error) {
-      console.log(error);
+      console.log("Error occurred while updating the todo" + error);
     }
   };
 
   return (
-    <div className="p-10 flex flex-col gap-4">
-      {isLoading ? (
-        <h2>Loading...</h2>
-      ) : error ? (
-        <h2>Error occurred: {error.code}</h2>
-      ) : (
-        data?.map((item) => (
-          <div
-            key={item.id}
-            className="bg-sky-800 border border-sky-400 rounded-md px-6 py-5 flex justify-between items-center "
-          >
-            <div>
-              <li className="list-none text-white font-medium text-lg">
-                {item.title}
-              </li>
-            </div>
-            <div className="flex items-center gap-4 text-white">
-              <div
-                onClick={() => {
-                  updateTodoHandler(item.id);
-                }}
-                className="py-1 px-3 bg-green-700 rounded-md cursor-pointer border border-green-600 hover:bg-green-600 transition-all duration-200"
-              >
-                <UpdateIcon />
-              </div>
-              <div
-                onClick={() => {
-                  deleteTodoHandler(item.id);
-                }}
-                className="py-1 px-3 bg-red-700 rounded-md border border-red-500 cursor-pointer hover:bg-red-600 transition-all duration-200"
-              >
-                <DeleteIcon />
-              </div>
-            </div>
-          </div>
-        ))
-      )}
-    </div>
+    <TodoCards/>
   );
 };
 
