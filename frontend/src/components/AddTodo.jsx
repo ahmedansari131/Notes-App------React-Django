@@ -16,7 +16,7 @@ import { setTodoData } from "../slices/todoSlice";
 import PrimaryBtn from "./buttons/PrimaryBtn";
 
 const AddTodo = (props) => {
-  const{isUpdating} = props;
+  const { isUpdating } = props;
 
   const [createTodo] = useCreateTodoMutation();
   const { refetch } = useGetTodoListQuery();
@@ -83,9 +83,8 @@ const AddTodo = (props) => {
     const todoObj = {
       title: title,
       description: description,
-    }
-    dispatch(setTodoData(todoObj))
-    console.log("This is todo ", todoObj);
+    };
+    dispatch(setTodoData(todoObj));
     if (title === "" || description === "") return;
 
     if (isUpdating) {
@@ -100,8 +99,8 @@ const AddTodo = (props) => {
     }
     inputTitleRef.current.textContent = "";
     inputDescRef.current.textContent = "";
-    dispatch(setTodoTitleInputActive(false))
-    dispatch(setTodoDescInputActive(false))
+    dispatch(setTodoTitleInputActive(false));
+    dispatch(setTodoDescInputActive(false));
   };
 
   return (

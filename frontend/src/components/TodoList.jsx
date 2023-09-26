@@ -7,6 +7,7 @@ import {
 import { useDispatch } from "react-redux";
 import { setTodoId } from "../slices/todoSlice";
 import TodoCards from "./cards/TodoCards"
+import { useState } from "react";
 
 const TodoList = (props) => {
   const { setInputTitle, setInputDesc, setIsUpdating } = props;
@@ -14,6 +15,7 @@ const TodoList = (props) => {
   const [deleteTodo] = useDeleteTodoMutation();
   const { refetch } = useGetTodoListQuery();
   const dispatch = useDispatch()
+  const [isOpen, setIsOpen] = useState(false);
 
   const deleteTodoHandler = async (id) => {
     try {
@@ -36,9 +38,10 @@ const TodoList = (props) => {
       console.log("Error occurred while updating the todo" + error);
     }
   };
+  
 
   return (
-    <TodoCards/>
+    <TodoCards isOpen={isOpen} setIsOpen={setIsOpen}  />
   );
 };
 
