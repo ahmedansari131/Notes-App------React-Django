@@ -1,14 +1,15 @@
 import React from "react";
 import PrimaryBtn from "../buttons/PrimaryBtn";
 import SecondaryBtn from "../buttons/SecondaryBtn";
-import Input from "../inputField/Input";
+import Input from "../input/Input";
 import SearchIcon from '@mui/icons-material/Search';
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   return (
-    <nav className="flex items-center justify-between border-b-2 border-slate-800 py-3 px-10">
+    <nav className="flex items-center justify-between border-b-2 bg-slate-900 border-slate-800 py-3 px-10 sticky top-0 z-40">
       <div>
-        <h1 className="text-2xl uppercase font-bold text-white">Plain Paper</h1>
+        <Link to="/"><h1 className="text-2xl uppercase font-bold text-white">Note X</h1></Link>
       </div>
       <div className="flex w-1/3 items-center text-gray-200 bg-slate-800 px-4 rounded-md">
         <SearchIcon />
