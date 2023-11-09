@@ -7,22 +7,29 @@ export const crudApi = createApi({
         getTodoList: builder.query({
             query: () => '/',
         }),
+
+        getNote: builder.query({
+            query: (id) => `${id}/`,
+        }),
+
         createTodo: builder.mutation({
             query: (todo) => ({
-                url: '/createtodo/',
+                url: 'createnote/',
                 method: "POST",
                 body: todo,
             }),
         }),
+
         deleteTodo: builder.mutation({
             query: (id) => ({
-                url: `deletetodo/${id}`,
+                url: `deletetodo/${id}/`,
                 method: "DELETE",
             }),
         }),
+
         updateTodo: builder.mutation({
             query: (inputData) => {
-                const {id, ...data} = inputData; 
+                const { id, ...data } = inputData;
                 return {
                     url: `updatetodo/${id}/`,
                     method: "PUT",
@@ -34,4 +41,4 @@ export const crudApi = createApi({
 
 })
 
-export const { useGetTodoListQuery, useCreateTodoMutation, useDeleteTodoMutation, useUpdateTodoMutation } = crudApi;
+export const { useGetTodoListQuery, useCreateTodoMutation, useDeleteTodoMutation, useUpdateTodoMutation, useGetNoteQuery } = crudApi;
