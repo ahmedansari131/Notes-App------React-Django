@@ -7,6 +7,7 @@ class TodoList(models.Model):
     udpated_at = models.DateTimeField(auto_now_add=True)
     pinned = models.BooleanField(default=False)
     archived = models.BooleanField(default=False)
+    color = models.CharField(default="", max_length=50, blank=True)
 
     def __str__(self):
         return self.title

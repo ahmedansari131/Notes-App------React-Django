@@ -7,12 +7,21 @@ import {
   getNotes,
   getPinnedNotes,
   getArchivedNotes,
+  getColor,
 } from "./app/slices/noteData/notesSlice";
 
 function App() {
-  const { data, error, isLoading, refetch } = useGetTodoListQuery();
+  const { data, error, isLoading } = useGetTodoListQuery();
   const noteId = useSelector((state) => state.updateNote.noteId);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (!isLoading && data) {
+      data.forEach((note) => {
+        if (note.color !== "") dispatch(getColor(note));
+      });
+    }
+  }, [isLoading, data]);
 
   useEffect(() => {
     const otherNotes = data
