@@ -4,6 +4,8 @@ const initialState = {
     notes: null,
     pinnedNotes: null,
     archivedNotes: null,
+    coloredNote: [],
+    currentColor: null,
 }
 
 const notesSlice = createSlice({
@@ -21,8 +23,32 @@ const notesSlice = createSlice({
         getArchivedNotes: (state, actions) => {
             state.archivedNotes = actions.payload;
         },
+
+        getColor: (state, action) => {
+            const existingIndex = state.coloredNote.findIndex(
+                (note) => note.id === action.payload.id
+            );
+
+            if (existingIndex !== -1) {
+                state.coloredNote.splice(existingIndex, 1);
+            }
+
+            state.coloredNote.push(action.payload);
+        },
+
+        getCurrentColor: (state, actions) => {
+            const matchedNote = state.coloredNote.find((note) => note.id === actions.payload?.id);
+            if (matchedNote) {
+                state.currentColor = matchedNote.color;
+            }
+            else{
+                state.currentColor = null;
+            }
+
+        }
+
     }
 });
 
 export default notesSlice.reducer;
-export const { getNotes, getPinnedNotes, getArchivedNotes } = notesSlice.actions;
+export const { getNotes, getPinnedNotes, getArchivedNotes, getColor, getCurrentColor } = notesSlice.actions;
