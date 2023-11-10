@@ -19,6 +19,12 @@ const UpdateNoteInput = () => {
   const otherNotes = useSelector((state) => state.notes.notes);
   const pinnedNotes = useSelector((state) => state.notes.pinnedNotes);
   const archivedNotes = useSelector((state) => state.notes.archivedNotes);
+  const coloredNote = useSelector((state) => state.notes.coloredNote);
+
+  const getUpdateInputColor = () => {
+    const note = coloredNote.find((note) => note.id === updateNoteStatus);
+    return note?.color;
+  };
 
   useEffect(() => {
     if (updateNoteStatus) {
@@ -94,7 +100,6 @@ const UpdateNoteInput = () => {
       title: getTitle(),
       description: getDesc(),
     };
-    console.log(todoObj);
 
     if (getTitle() === "" || getDesc() === "") return;
 
@@ -112,6 +117,7 @@ const UpdateNoteInput = () => {
   return (
     <div
       className={`w-1/3 m-auto mt-10 flex flex-col gap-4 bg-slate-700 rounded-md overflow-hidden p-2 shadow-2xl py-4 absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2`}
+      style={{ backgroundColor: getUpdateInputColor() }}
     >
       <div className="w-full">
         <div className="relative">
@@ -120,6 +126,7 @@ const UpdateNoteInput = () => {
             action={getTitle}
             className="text-lg font-medium pb-0"
             ref={titleRef}
+            noteColor={getUpdateInputColor()}
           />
         </div>
         <div className="relative">
@@ -133,6 +140,7 @@ const UpdateNoteInput = () => {
             action={getDesc}
             ref={descRef}
             className=" text-sm font-light pt-4"
+            noteColor={getUpdateInputColor()}
           />
         </div>
       </div>

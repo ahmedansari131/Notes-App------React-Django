@@ -70,6 +70,12 @@ class UpdateTodo(APIView):
                 if note.archived:
                     note.pinned = False
 
+            if "color" in data:
+                if data.get('color') == "":
+                    note.color = ""
+                else:
+                    note.color = data.get('color')
+
 
             note.save()
             return Response({"status": 200, "Message": "Note updated successfully"})

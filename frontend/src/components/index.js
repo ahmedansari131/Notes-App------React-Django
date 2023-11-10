@@ -13,6 +13,7 @@ import NoteCardContainer from "./container/NoteCardContainer";
 import Sidebar from "./sidebar/Sidebar";
 import SidebarLink from "./sidebar/SidebarLink";
 import NoteDropdown from "./dropdown/NoteDropdown";
+import Tooltip from "./tooltip/Tooltip";
 
 export{
     Navbar,
@@ -30,4 +31,5 @@ export{
     Sidebar,
     SidebarLink,
     NoteDropdown,
+    Tooltip,
 }

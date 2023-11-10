@@ -6,6 +6,7 @@ const TodoInput = React.forwardRef((props, ref) => {
     action,
     inputReference,
     className = "",
+    noteColor,
     ...attributes
   } = props;
 
@@ -16,6 +17,7 @@ const TodoInput = React.forwardRef((props, ref) => {
       contentEditable={true}
       onInput={action}
       className={`w-full resize-none outline-none px-4 py-3 h-full bg-slate-700 relative text-white ${className} `}
+      style={{backgroundColor: noteColor}}
     ></div>
   );
 });

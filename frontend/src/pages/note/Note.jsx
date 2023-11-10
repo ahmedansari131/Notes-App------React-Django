@@ -1,50 +1,29 @@
 import React, { useEffect, useState } from "react";
-import {
-  AddNoteInput,
-  NoteCardContainer,
-  NoteCards,
-  UpdateNoteInput,
-} from "../../components";
+import { AddNoteInput, NoteCardContainer, NoteCards } from "../../components";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  useGetTodoListQuery,
-  useUpdateTodoMutation,
-} from "../../services/crudApi";
-import PushPinIcon from "@mui/icons-material/PushPin";
-import PushPinOutlinedIcon from "@mui/icons-material/PushPinOutlined";
 
 const Todo = () => {
-  const { refetch } = useGetTodoListQuery();
-  const noteId = useSelector((state) => state.updateNote.noteId);
   const otherNotes = useSelector((state) => state.notes.notes);
   const pinnedNotes = useSelector((state) => state.notes.pinnedNotes);
   const [pinnedNote, setPinnedNote] = useState(null);
-  const [updateNote, { isLoading: updateNoteLoader }] = useUpdateTodoMutation();
+  const coloredNote = useSelector((state) => state.notes.coloredNote);
 
   useEffect(() => {
     setPinnedNote(pinnedNotes);
   }, [pinnedNotes]);
 
-  // const pinNoteHandler = async (e, id) => {
-  //   e.stopPropagation();
-  //   const noteObj = {
-  //     id: id,
-  //     pin: true,
-  //   };
-
-  //   try {
-  //     const response = await updateNote(noteObj);
-  //     refetch();
-  //   } catch (error) {
-  //     console.log("Error occurred while pinning the note ", error);
-  //   }
-  // };
+  const notesColorHandler = (id) => {
+    return coloredNote
+      ?.filter((note) => note?.id === id)
+      .map((note) => note?.color)[0];
+  };
 
   return (
     <>
-      <div className="bg-slate-900">
+      <div className="bg-slate-900 w-full">
         <AddNoteInput />
 
+        {/* PINNED NOTES */}
         {pinnedNote?.length && (
           <div className="mt-5 mb-16">
             <h2 className="text-slate-300 text-[.7rem] uppercase font-light tracking-widest mb-3 ml-14 inline-block">
@@ -59,12 +38,14 @@ const Todo = () => {
                   desc={item.description}
                   id={item.id}
                   pinned={true}
+                  color={notesColorHandler(item.id)}
                 />
               ))}
             </NoteCardContainer>
           </div>
         )}
 
+        {/* OTHER NOTES */}
         <div className="mt-5">
           {pinnedNote?.length && (
             <h2 className="text-slate-300 text-[.7rem] uppercase font-light tracking-widest mb-3 ml-14">
@@ -80,6 +61,7 @@ const Todo = () => {
                   desc={item.description}
                   id={item.id}
                   pinned={false}
+                  color={notesColorHandler(item.id)}
                 />
               ))}
           </NoteCardContainer>
