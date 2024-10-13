@@ -1,14 +1,15 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { crudApi } from "../services/crudApi";
-import updateNoteSlice from "./slices/updateNote/updateNoteSlice";
-import notesSlice from "./slices/noteData/notesSlice";
-import dropdownSlice from "./slices/dropdown/dropdownSlice";
+import { snackbarSlice, modalFrameSlice, confirmationModalSlice, dropdownSlice, labelSlice, notesSlice } from "./index"
 
 export const store = configureStore({
     reducer: {
-        updateNote: updateNoteSlice,
         notes: notesSlice,
         dropdown: dropdownSlice,
+        noteLabel: labelSlice,
+        confirmationModal: confirmationModalSlice,
+        modalFrame: modalFrameSlice,
+        snackbar: snackbarSlice,
         [crudApi.reducerPath]: crudApi.reducer,
     },
 

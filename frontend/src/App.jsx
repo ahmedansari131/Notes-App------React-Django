@@ -1,7 +1,19 @@
 import React, { useEffect } from "react";
-import { Container, Navbar, UpdateNoteInput } from "./components";
+import {
+  BlackContainer,
+  ConfirmationModal,
+  Container,
+  LabelModal,
+  Navbar,
+  Snackbar,
+  UpdateNoteInput,
+} from "./components";
 import { Outlet } from "react-router-dom";
-import { useGetTodoListQuery } from "./services/crudApi";
+import {
+  useDeleteNoteLabelMutation,
+  useGetAllNoteLabelQuery,
+  useGetTodoListQuery,
+} from "./services/crudApi";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getNotes,
@@ -9,11 +21,17 @@ import {
   getArchivedNotes,
   getColor,
 } from "./app/slices/noteData/notesSlice";
+import { getAllNoteLabels } from "./app/slices/label/labelSlice";
 
 function App() {
-  const { data, error, isLoading } = useGetTodoListQuery();
-  const noteId = useSelector((state) => state.updateNote.noteId);
+  const { data, isLoading } = useGetTodoListQuery();
+  const { data: noteLabels, isLoading: noteLabelsLoader } =
+    useGetAllNoteLabelQuery();
   const dispatch = useDispatch();
+  const isModalFrameActive = useSelector((state) => state.modalFrame.active);
+  const isLabelModalActive = useSelector(
+    (state) => state.noteLabel.activeStatus
+  );
 
   useEffect(() => {
     if (!isLoading && data) {
@@ -40,15 +58,17 @@ function App() {
     dispatch(getArchivedNotes(archivedNotes));
   }, [data, isLoading]);
 
+  useEffect(() => {
+    dispatch(getAllNoteLabels(noteLabels));
+  }, [noteLabels, noteLabelsLoader]);
+
   return (
     <>
-      <div
-        className={`h-full fixed top-0 bg-black bg-opacity-60 flex justify-center items-center m-auto z-50 w-full transition-all duration-300 ${
-          noteId ? "opacity-100" : "opacity-0 invisible"
-        }`}
-      >
-        <UpdateNoteInput />
-      </div>
+      <Snackbar />
+      {isModalFrameActive && isLabelModalActive && (
+        <BlackContainer visible={true} />
+      )}
+
       <Navbar />
       <Container>
         <Outlet />

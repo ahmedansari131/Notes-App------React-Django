@@ -3,7 +3,7 @@ import DescriptionOutlinedIcon from "@mui/icons-material/DescriptionOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import ArchiveOutlinedIcon from "@mui/icons-material/ArchiveOutlined";
 import LabelOutlinedIcon from "@mui/icons-material/LabelOutlined";
-import ModeEditOutlineOutlinedIcon from '@mui/icons-material/ModeEditOutlineOutlined';
+import ModeEditOutlineOutlinedIcon from "@mui/icons-material/ModeEditOutlineOutlined";
 import SidebarLink from "./SidebarLink";
 
 const Sidebar = () => {
@@ -24,7 +24,7 @@ const Sidebar = () => {
     },
 
     {
-      path: "label",
+      path: "",
       icon: (
         <ModeEditOutlineOutlinedIcon
           className={`${iconClassName}`}
@@ -43,15 +43,15 @@ const Sidebar = () => {
       ),
     },
 
-    {
-      path: "trash",
-      icon: (
-        <DeleteOutlinedIcon
-          className={`${iconClassName}`}
-          style={{ fontSize: `${iconSize}` }}
-        />
-      ),
-    },
+    // {
+    //   path: "trash",
+    //   icon: (
+    //     <DeleteOutlinedIcon
+    //       className={`${iconClassName}`}
+    //       style={{ fontSize: `${iconSize}` }}
+    //     />
+    //   ),
+    // },
   ];
 
   return (

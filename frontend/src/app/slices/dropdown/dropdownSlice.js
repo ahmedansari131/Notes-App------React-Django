@@ -3,7 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
     active: false,
     id: null,
-    calledBy: null,
+    parentId: null,
+    labelDropdownActive: false,
 };
 
 const dropdownSlice = createSlice({
@@ -11,22 +12,23 @@ const dropdownSlice = createSlice({
     initialState,
     reducers: {
         dropdown: (state, action) => {
-            if (state.id === action.payload.id) {
-                state.active = !state.active;
-                state.id = null;
-                state.calledBy = null;
-            } else if (action.payload.id === null) {
-                state.active = action.payload.active;
-                state.id = action.payload.id;
-                state.calledBy = action.payload.calledBy;
-            } else {
+            if (action.payload !== null && action.payload.id !== state.id) {
                 state.active = true;
                 state.id = action.payload.id;
-                state.calledBy = action.payload.calledBy;
+                state.parentId = action.payload.parentId;
+            }
+            else {
+                state.active = false;
+                state.id = null;
+                state.parentId = null;
             }
         },
+
+        getLabelDropdownStatus: (state, actions) => {
+            state.labelDropdownActive = actions.payload;
+        }
     },
 });
 
 export default dropdownSlice.reducer;
-export const { dropdown } = dropdownSlice.actions;
+export const { dropdown, getLabelDropdownStatus } = dropdownSlice.actions;

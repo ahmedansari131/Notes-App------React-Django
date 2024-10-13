@@ -1,82 +1,59 @@
-import React from "react";
+import React, { useState, useEffect, useRef, useId } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  getNoteId,
   dropdown,
   getColor,
   getCurrentColor,
+  getNoteId,
 } from "../../app/index";
+import { NoteLabel, LinearLoader, PinNote, NoteOptions } from "../index";
+import {
+  useUpdateNoteMutation,
+  useUploadNoteImageMutation,
+  useDeleteTodoMutation,
+  useCreateNoteMutation,
+  selectAllNotes,
+} from "../../services/crudApi";
 import ArchiveOutlinedIcon from "@mui/icons-material/ArchiveOutlined";
+import UnarchiveOutlinedIcon from "@mui/icons-material/UnarchiveOutlined";
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import PaletteOutlinedIcon from "@mui/icons-material/PaletteOutlined";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { CardIcon, NoteDropdown, Tooltip } from "../index";
-import {
-  useDeleteTodoMutation,
-  useGetTodoListQuery,
-  useUpdateTodoMutation,
-} from "../../services/crudApi";
-import UnarchiveOutlinedIcon from "@mui/icons-material/UnarchiveOutlined";
-import PushPinIcon from "@mui/icons-material/PushPin";
-import PushPinOutlinedIcon from "@mui/icons-material/PushPinOutlined";
 import FormatColorResetOutlinedIcon from "@mui/icons-material/FormatColorResetOutlined";
+import { frameActiveHandler } from "../../app/slices/modalFrame/modalFrameSLice";
+import { toggleSnackbar } from "../../app/slices/snackbar/snackbarSlice";
 
-const TodoCards = (props) => {
-  const { title, desc, id, pinned, isArchived, color } = props;
+const NoteCards = (props) => {
+  const {
+    title,
+    desc,
+    id: noteId,
+    pinned,
+    isArchived,
+    color,
+    label,
+    image,
+  } = props;
+  const [file, setFile] = useState({
+    id: null,
+    filePath: null,
+    imagePreview: null,
+  });
   const dispatch = useDispatch();
-  const [updateNote] = useUpdateTodoMutation();
-  const { refetch } = useGetTodoListQuery();
-  const dropdownActive = useSelector((state) => state.dropdown.active);
-  const dropdownId = useSelector((state) => state.dropdown.id);
-  const dropdownCaller = useSelector((state) => state.dropdown.calledBy);
+  const [uploadNoteImage, { isLoading: imageLoading }] =
+    useUploadNoteImageMutation({
+      fixedCacheKey: "shared-image-uploading-status",
+    });
+  const [updateNote] = useUpdateNoteMutation();
+  const [duplicateNote] = useCreateNoteMutation();
   const [deleteNote] = useDeleteTodoMutation();
+  const imageFileRef = useRef(null);
+  const generateId = useId();
+  const allNotes = useSelector(selectAllNotes);
 
   const openUpdateInput = (id) => {
+    dispatch(frameActiveHandler(true));
     dispatch(getNoteId({ id: id }));
-  };
-
-  const archiveHandler = async (e) => {
-    const noteObj = {
-      id: id,
-      archived: true,
-    };
-
-    try {
-      const response = await updateNote(noteObj);
-      refetch();
-    } catch (error) {
-      console.log("Error occurred while archiving the note ", error);
-    }
-  };
-
-  const pinNoteHandler = async (e, id) => {
-    e.stopPropagation();
-    const noteObj = {
-      id: id,
-      pin: true,
-    };
-
-    try {
-      const response = await updateNote(noteObj);
-      refetch();
-    } catch (error) {
-      console.log("Error occurred while pinning the note ", error);
-    }
-  };
-
-  const dropdownHandler = (e, id, calledBy) => {
-    dispatch(dropdown({ id: id, calledBy: calledBy }));
-
-    if (calledBy === "colors") dispatch(getCurrentColor({ id: id }));
-  };
-
-  const deleteTodoHandler = async (id) => {
-    try {
-      const todo = await deleteNote(id);
-      refetch();
-    } catch (error) {
-      console.log("Error occurred while deleting the todo", error);
-    }
   };
 
   const noteColorHandler = async (id, color) => {
@@ -95,12 +72,111 @@ const TodoCards = (props) => {
     }
   };
 
-  const cardMenuIconStyle = {
-    className: "text-slate-200 p-1 rounded-sm text-xl cursor-pointer",
-    fontSize: "1.8rem",
+  const archiveHandler = async (e) => {
+    const noteObj = {
+      id: noteId,
+      archived: true,
+    };
+
+    try {
+      const response = await updateNote(noteObj);
+      if (response.data) {
+        dispatch(
+          toggleSnackbar({ status: true, message: response.data.Message })
+        );
+      } else {
+        dispatch(toggleSnackbar({ status: true, message: response.error }));
+      }
+    } catch (error) {
+      console.log("Error occurred while archiving the note ", error);
+    }
   };
 
-  const dropdownColors = [
+  // useEffect(() => {
+  //   if (file?.filePath !== null) {
+  //     const formData = new FormData();
+  //     formData.append("image", file.filePath);
+  //     formData.append("id", file.id);
+
+  //     fileUploadHandler(formData);
+  //   }
+  // }, [file]);
+
+  // const fileHandler = (e, id) => {
+  //   if (e.target.files[0] !== null) {
+  //     setFile({
+  //       id: id,
+  //       filePath: e.target.files[0],
+  //       imagePreview: URL.createObjectURL(e.target.files[0]),
+  //     });
+  //   }
+  // };
+
+  // const fileUploadHandler = async (data) => {
+  //   try {
+  //     const response = await uploadNoteImage(data);
+  //     if (response.data) {
+  //       setFile({ id: null, filePath: null, imagePreview: null });
+  //     }
+  //   } catch (error) {
+  //     console.log("Error occurred while uploading the image ", error);
+  //   }
+  // };
+
+  const deleteTodoHandler = async (id) => {
+    try {
+      const todo = await deleteNote(id);
+    } catch (error) {
+      console.log("Error occurred while deleting the todo", error);
+    }
+  };
+
+  const labelDropdownHandler = (labelId) => {
+    dispatch(
+      dropdown({
+        id: labelId,
+        parentId: noteId,
+      })
+    );
+  };
+
+  const masterDropdownHandler = (dropdownId = null) => {
+    dispatch(dropdown({ id: dropdownId, parentId: noteId }));
+  };
+
+  const getNoteFromState = () => {
+    return allNotes.data.find((note) => note.id === dropdownParentId);
+  };
+
+  const noteDuplicationHandler = async () => {
+    const noteObj = getNoteFromState();
+    try {
+      const response = await duplicateNote(noteObj);
+      console.log("object ", response);
+    } catch (error) {
+      console.log("Error occurred while duplicating the note ", error);
+    }
+  };
+
+  const moreLinks = [
+    {
+      name: "Delete",
+      func: deleteTodoHandler,
+      subName: "DELETE",
+    },
+    {
+      name: "Add labels",
+      func: labelDropdownHandler,
+      subName: "LABELS",
+    },
+    {
+      name: "Make a copy",
+      func: noteDuplicationHandler,
+      subName: "DUPLICATE",
+    },
+  ];
+
+  const colorsOpt = [
     {
       icon: <FormatColorResetOutlinedIcon />,
       name: "Default",
@@ -152,31 +228,22 @@ const TodoCards = (props) => {
     },
   ];
 
-  const dropdownLinks = [
-    {
-      name: "Delete",
-      action: deleteTodoHandler,
-    },
-    {
-      name: "Add labels",
-      action: "",
-    },
-    {
-      name: "Make a copy",
-      action: "",
-    },
-  ];
+  const cardMenuIconStyle = {
+    className: "text-slate-200 p-1 rounded-sm text-xl cursor-pointer",
+    fontSize: "1.8rem",
+  };
 
   const cardMenus = [
-    {
-      icon: (
-        <ImageOutlinedIcon
-          className={`${cardMenuIconStyle.className}`}
-          style={{ fontSize: cardMenuIconStyle.fontSize }}
-        />
-      ),
-      name: "image",
-    },
+    // {
+    //   icon: (
+    //     <ImageOutlinedIcon
+    //       className={`${cardMenuIconStyle.className}`}
+    //       style={{ fontSize: cardMenuIconStyle.fontSize }}
+    //     />
+    //   ),
+    //   name: "IMAGE",
+    //   onClick: () => imageFileRef.current.click(),
+    // },
     {
       icon: (
         <PaletteOutlinedIcon
@@ -184,18 +251,25 @@ const TodoCards = (props) => {
           style={{ fontSize: cardMenuIconStyle.fontSize }}
         />
       ),
-      name: "colors",
-      onClick: (e) => dropdownHandler(e, id, "colors"),
-      dropdownItem: dropdownColors,
+      name: "COLORS",
+      id: `colors-${generateId}`,
+      dropdownItem: colorsOpt,
+      onClick: () => masterDropdownHandler(`colors-${generateId}`),
+      noteColorHandler: noteColorHandler,
     },
     {
-      icon: (
+      icon: isArchived ? (
+        <UnarchiveOutlinedIcon
+          className={`${cardMenuIconStyle.className}`}
+          style={{ fontSize: cardMenuIconStyle.fontSize }}
+        />
+      ) : (
         <ArchiveOutlinedIcon
           className={`${cardMenuIconStyle.className}`}
           style={{ fontSize: cardMenuIconStyle.fontSize }}
         />
       ),
-      name: "archive",
+      name: "ARCHIVE",
       onClick: (e) => archiveHandler(e),
     },
     {
@@ -205,119 +279,88 @@ const TodoCards = (props) => {
           style={{ fontSize: cardMenuIconStyle.fontSize }}
         />
       ),
-      name: "more",
-      onClick: (e) => dropdownHandler(e, id, "more"),
-      dropdownItem: dropdownLinks,
+      name: "MORE",
+      id: `more-${generateId}`,
+      dropdownItem: moreLinks,
+      subDropdownItemName: "noteLabelDropdown",
+      onClick: () => masterDropdownHandler(`more-${generateId}`),
     },
   ];
 
   return (
     <div
-      id={id}
-      className={`${
-        color ? null : "bg-slate-900"
-      } border border-slate-700 rounded-md px-6 py-5 w-full hover:shadow-lg group hover:border-slate-600 hover:bg-slate-800 cursor-default
+      id={noteId}
+      className={`pb-4 border border-slate-700 rounded-md w-64 hover:shadow-lg group hover:border-slate-600 hover:bg-slate-800 cursor-default break-inside-avoid-column mb-4 ${
+        color ? null : " bg-slate-900 "
+      }
               `}
-      style={{ wordWrap: "break-word", backgroundColor: color ? color : null }}
-      onClick={(e) => openUpdateInput(id)}
+      style={{
+        wordWrap: "break-word",
+        backgroundColor: color ? color : null,
+        border: color ? color : "",
+      }}
+      onClick={(e) => openUpdateInput(noteId)}
     >
-      <div className="flex flex-col h-full justify-between">
-        <div className="flex flex-col gap-3">
+      <input
+        ref={imageFileRef}
+        type="file"
+        onClick={(e) => e.stopPropagation()}
+        onChange={(e) => fileHandler(e, noteId)}
+        className="hidden"
+        accept=".jpg, .jpeg, .png"
+        multiple={false}
+      />
+      <div className="flex flex-col h-full justify-between relative ">
+        <div className="w-full overflow-hidden">
+          <div className="relative">
+            {imageLoading && file.id === noteId && (
+              <span className="w-full h-full absolute top-0 left-0 bg-black bg-opacity-60"></span>
+            )}
+            <img
+              className={`rounded-t-md`}
+              src={!imageLoading ? image : file.imagePreview}
+            />
+          </div>
+          {imageLoading && file.id === noteId && <LinearLoader />}
+        </div>
+
+        <div className="flex flex-col gap-3 pt-7 px-5">
           <div className="flex items-start justify-between">
             <li
-              className="list-none text-white font-medium break-words text-xl"
+              className="list-none text-white font-medium break-words text-xl w-44"
               style={{ wordBreak: "break-word" }}
             >
               {title}
             </li>
-            <div
-              className={`rounded-sm transition-all duration-200 group-hover:opacity-100 opacity-0 hover:bg-slate-600 hover:bg-opacity-50 p-1 cursor-pointer ${
-                dropdownActive && dropdownId === id ? "opacity-100" : ""
-              }`}
-            >
-              {!pinned ? (
-                <PushPinOutlinedIcon
-                  className={`text-slate-200 p-1`}
-                  style={{ fontSize: "1.8rem" }}
-                  onClick={(e) => pinNoteHandler(e, id)}
-                />
-              ) : (
-                <PushPinIcon
-                  className={`text-slate-200 p-1`}
-                  style={{ fontSize: "1.8rem" }}
-                  onClick={(e) => pinNoteHandler(e, id)}
-                />
-              )}
-            </div>
+            <PinNote id={noteId} pinnedStatus={pinned} />
           </div>
-          <p className="text-slate-400 font-normal text-sm pointer-events-none">
-            {desc}
-          </p>
+          <div>
+            <p className="text-slate-400 font-normal text-sm pointer-events-none">
+              {desc}
+            </p>
+          </div>
+
+          {label !== "" && (
+            <div>
+              <NoteLabel label={label} />
+            </div>
+          )}
         </div>
 
-        <div
-          className={`flex justify-between rounded-md mt-3 gap-1 opacity-0 group-hover:opacity-100 ${
-            dropdownActive && dropdownId === id ? "opacity-100" : ""
-          }`}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {cardMenus?.map((item) => (
-            <div key={item.name} className={`relative group/${item.name}`}>
-              <div
-                className="rounded-sm transition-all duration-200 hover:bg-slate-600 hover:bg-opacity-50 cursor-pointer p-1 "
-                onClick={item.onClick}
-              >
-                {item.icon}
-              </div>
-              <Tooltip tip={item.name} onHover={item.name} />
-
-              <div>
-                {dropdownActive &&
-                  dropdownId === id &&
-                  dropdownCaller === item.name && (
-                    <NoteDropdown
-                      item={item.dropdownItem}
-                      id={id}
-                      caller={item.name}
-                      action={item.name === "colors" && noteColorHandler}
-                    />
-                  )}
-              </div>
-            </div>
-          ))}
-
-          {/* MORE ICON */}
-          {/* <div>
-            <div
-              className="relative group/more"
-              onClick={(e) => dropdownHandler(e, id, "more")}
-            >
-              <CardIcon
-                icon={
-                  <MoreVertIcon
-                    className="text-slate-200 p-1 rounded-sm text-xl cursor-pointer "
-                    style={{ fontSize: "1.8rem" }}
-                  />
-                }
-              />
-              <Tooltip tip="More" />
-            </div>
-            <div>
-              {dropdownActive &&
-                dropdownId === id &&
-                dropdownCaller === "more" && (
-                  <NoteDropdown
-                    item={dropdownLinks}
-                    id={id}
-                    caller={dropdownCaller}
-                  />
-                )}
-            </div>
-          </div> */}
+        <div className="px-5">
+          <NoteOptions
+            archived={isArchived}
+            noteId={noteId}
+            noteColorHandler={noteColorHandler}
+            archiveHandler={archiveHandler}
+            cardMenus={cardMenus}
+            moreLinks={moreLinks}
+            colorsOpt={colorsOpt}
+          />
         </div>
       </div>
     </div>
   );
 };
 
-export default TodoCards;
+export default NoteCards;

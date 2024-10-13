@@ -6,6 +6,7 @@ const initialState = {
     archivedNotes: null,
     coloredNote: [],
     currentColor: null,
+    noteId: null,
 }
 
 const notesSlice = createSlice({
@@ -45,10 +46,13 @@ const notesSlice = createSlice({
                 state.currentColor = null;
             }
 
-        }
+        },
 
+        getNoteId: (state, actions) => {
+            state.noteId = actions.payload.id;
+        }
     }
 });
 
 export default notesSlice.reducer;
-export const { getNotes, getPinnedNotes, getArchivedNotes, getColor, getCurrentColor } = notesSlice.actions;
+export const { getNotes, getPinnedNotes, getArchivedNotes, getColor, getCurrentColor, getNoteId } = notesSlice.actions;

@@ -11,12 +11,15 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import { Note, ArchiveNotes } from "./pages/index.js";
+import { Register, Login } from "./components/index.js";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />}>
       <Route path="/" element={<Note />} />
       <Route path="archive" element={<ArchiveNotes />} />
+      <Route path="register" element={<Register />} />
+      <Route path="login" element={<Login />} />
     </Route>
   )
 );
